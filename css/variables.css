@@ -1,0 +1,100 @@
+/* ============================================
+   VELMORA — Design Tokens
+   Sistema de variables de diseño.
+   Cambiar valores aquí afecta a toda la app.
+   ============================================ */
+
+:root {
+  /* ---- Color: rojo como acento de acción, no como fondo ---- */
+  --color-primary: #B5292E;        /* rojo principal, sobrio */
+  --color-primary-dark: #8F1F23;   /* hover / pressed */
+  --color-primary-soft: #D96A6E;   /* estados suaves, focos ligeros */
+  --color-primary-tint: #FBEBEC;   /* fondos muy sutiles con tinte rojo */
+
+  --color-bg: #FAFAF9;             /* fondo general de la app */
+  --color-surface: #FFFFFF;        /* tarjetas, paneles, modales */
+  --color-surface-raised: #FFFFFF;
+
+  --color-text: #1A1A1A;           /* texto principal, no negro puro */
+  --color-text-secondary: #6B6B6B;
+  --color-text-tertiary: #9B9B9B;
+  --color-text-on-primary: #FFFFFF;
+
+  --color-border: #E8E6E4;
+  --color-border-strong: #D7D4D1;
+
+  --color-success: #2E7D4F;
+  --color-error: #B5292E;
+  --color-warning: #A66A1E;
+
+  --color-overlay: rgba(20, 18, 18, 0.55);
+  --color-scrim-video: rgba(0, 0, 0, 0.35);
+
+  /* ---- Tipografía ---- */
+  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.75rem;
+  --fs-xxl: 2.25rem;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+
+  /* ---- Espaciado (escala base 4px) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- Radios: discretos, nunca excesivos ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* ---- Sombras: suaves, nunca dramáticas ---- */
+  --shadow-sm: 0 1px 2px rgba(20, 18, 18, 0.06);
+  --shadow-md: 0 4px 12px rgba(20, 18, 18, 0.08);
+  --shadow-lg: 0 8px 24px rgba(20, 18, 18, 0.12);
+
+  /* ---- Transiciones ---- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* ---- Layout ---- */
+  --header-height: 56px;
+  --bottom-nav-height: 60px;
+  --max-content-width: 1100px;
+  --feed-max-width: 460px;
+
+  /* ---- Z-index: escala controlada ---- */
+  --z-header: 100;
+  --z-bottom-nav: 100;
+  --z-dropdown: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 310;
+  --z-toast: 400;
+
+  /* ---- Safe areas (notch / gestos) ---- */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}

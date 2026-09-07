@@ -1,0 +1,98 @@
+/* ============================================
+   VELMORA — Responsive
+   Ajustes específicos por punto de quiebre.
+   El grueso del responsive vive junto a cada
+   componente; aquí van los ajustes finos.
+   ============================================ */
+
+/* Teléfonos muy pequeños */
+@media (max-width: 374px) {
+  .video-info {
+    right: 72px;
+  }
+
+  .video-actions {
+    right: var(--space-2);
+    gap: var(--space-4);
+  }
+
+  .video-action-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .auth-container {
+    max-width: 100%;
+  }
+}
+
+/* Layout de escritorio: sidebar + contenido */
+@media (min-width: 1024px) {
+  .app-layout {
+    display: flex;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .app-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .app-header {
+    display: none;
+  }
+
+  .page-container {
+    padding: var(--space-6) var(--space-6);
+  }
+}
+
+/* Orientación horizontal en móvil: feed sigue siendo usable */
+@media (max-height: 480px) and (orientation: landscape) {
+  .bottom-nav {
+    height: 48px;
+  }
+
+  .video-info {
+    padding-bottom: var(--space-3);
+  }
+
+  .video-actions {
+    bottom: var(--space-3);
+    gap: var(--space-3);
+  }
+}
+
+/* Tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .feed-viewport {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+/* Pantallas grandes */
+@media (min-width: 1440px) {
+  .page-container {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+}
+
+/* Asegurar que nada desborde horizontalmente */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Inputs no deben hacer zoom automático en iOS */
+input, textarea, select {
+  font-size: max(16px, var(--fs-base));
+}
+
+@media (min-width: 768px) {
+  input, textarea, select {
+    font-size: var(--fs-base);
+  }
+}

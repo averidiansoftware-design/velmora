@@ -1,0 +1,119 @@
+/* ============================================
+   VELMORA — Subir contenido
+   ============================================ */
+
+.upload-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.upload-dropzone {
+  position: relative;
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              background-color var(--duration-fast) var(--ease-standard);
+  overflow: hidden;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.is-dragover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+
+.upload-dropzone svg {
+  width: 36px;
+  height: 36px;
+  color: var(--color-text-tertiary);
+}
+
+.upload-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-dropzone-text {
+  font-size: var(--fs-sm);
+  text-align: center;
+  padding: 0 var(--space-6);
+}
+
+.upload-preview {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #0E0E0E;
+  aspect-ratio: 9 / 16;
+  max-height: 420px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 240px;
+}
+
+.upload-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-preview-remove {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-preview-remove svg {
+  width: 16px;
+  height: 16px;
+}
+
+.upload-progress-track {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  width: 0%;
+  transition: width 150ms ease;
+}
+
+.upload-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.upload-char-count {
+  align-self: flex-end;
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+}
