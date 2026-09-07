@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#FAFAF9" />
+  <title>Subir video — Velmora</title>
+  <meta name="description" content="Publica un nuevo video en Velmora." />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/navigation.css" />
+  <link rel="stylesheet" href="css/upload.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+  <div id="splash-screen" class="splash">
+    <div class="splash-logo">Vel<span>mora</span></div>
+    <div class="spinner"></div>
+  </div>
+
+  <div class="app-layout">
+    <div id="nav-root"></div>
+
+    <main class="app-main">
+      <header class="app-header">
+        <span class="header-logo">Vel<span>mora</span></span>
+      </header>
+
+      <div class="upload-container">
+        <h1 class="state-panel-title" style="text-align:left;">Nuevo video</h1>
+
+        <div id="upload-alert-container"></div>
+
+        <form id="upload-form" novalidate>
+          <div class="upload-dropzone" id="upload-dropzone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            <p class="upload-dropzone-text">Toca para seleccionar un video<br />MP4, WebM o MOV — máx. 100MB</p>
+            <input type="file" id="upload-file-input" accept="video/mp4,video/webm,video/quicktime" aria-label="Seleccionar archivo de video" />
+          </div>
+
+          <div class="upload-preview hidden" id="upload-preview-wrap" style="margin-top: var(--space-4);">
+            <video id="upload-preview-video" muted loop playsinline></video>
+            <button type="button" class="upload-preview-remove" id="upload-preview-remove" aria-label="Quitar video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+          </div>
+
+          <div class="field" style="margin-top: var(--space-5);">
+            <label class="field-label" for="upload-description">Descripción</label>
+            <textarea class="field-input" id="upload-description" maxlength="200" placeholder="Escribe una descripción. Usa # para hashtags."></textarea>
+            <span class="upload-char-count"><span id="upload-char-count">0</span>/200</span>
+          </div>
+
+          <div class="hidden" id="upload-progress-wrap" style="margin-top: var(--space-4);">
+            <div class="upload-progress-track">
+              <div class="upload-progress-fill" id="upload-progress-fill"></div>
+            </div>
+            <div class="upload-progress-label">
+              <span id="upload-progress-text">Subiendo…</span>
+              <span id="upload-progress-percent">0%</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="upload-submit" style="margin-top: var(--space-6);" disabled>
+            Publicar
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/app.js"></script>
+  <script type="module">
+    import { publishVideo, cancelUpload } from "./js/upload.js";
+    import { watchAuthState, getCurrentUserProfile } from "./js/auth.js";
+    import { guardSubmit } from "./js/security.js";
+    import { showToast } from "./js/utils.js";
+    import { ROUTES } from "./js/config.js";
+
+    const dropzone = document.getElementById("upload-dropzone");
+    const fileInput = document.getElementById("upload-file-input");
+    const previewWrap = document.getElementById("upload-preview-wrap");
+    const previewVideo = document.getElementById("upload-preview-video");
+    const removeBtn = document.getElementById("upload-preview-remove");
+    const descriptionInput = document.getElementById("upload-description");
+    const charCount = document.getElementById("upload-char-count");
+    const submitBtn = document.getElementById("upload-submit");
+    const form = document.getElementById("upload-form");
+    const alertContainer = document.getElementById("upload-alert-container");
+    const progressWrap = document.getElementById("upload-progress-wrap");
+    const progressFill = document.getElementById("upload-progress-fill");
+    const progressPercent = document.getElementById("upload-progress-percent");
+
+    let selectedFile = null;
+    let currentAuthor = null;
+
+    watchAuthState(async (user) => {
+      if (!user) return;
+      const profile = await getCurrentUserProfile(user.uid).catch(() => null);
+      currentAuthor = {
+        uid: user.uid,
+        username: profile?.username || "usuario",
+        displayName: profile?.displayName || user.displayName || "Usuario",
+        photoURL: profile?.photoURL || "",
+      };
+    });
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      selectedFile = file;
+      previewVideo.src = URL.createObjectURL(file);
+      previewWrap.classList.remove("hidden");
+      dropzone.classList.add("hidden");
+      submitBtn.disabled = false;
+    });
+
+    removeBtn.addEventListener("click", () => {
+      selectedFile = null;
+      fileInput.value = "";
+      previewVideo.src = "";
+      previewWrap.classList.add("hidden");
+      dropzone.classList.remove("hidden");
+      submitBtn.disabled = true;
+    });
+
+    descriptionInput.addEventListener("input", () => {
+      charCount.textContent = String(descriptionInput.value.length);
+    });
+
+    function showAlert(message) {
+      alertContainer.innerHTML = `<div class="auth-alert" role="alert">${message}</div>`;
+    }
+
+    form.addEventListener(
+      "submit",
+      guardSubmit(form, async () => {
+        alertContainer.innerHTML = "";
+        if (!selectedFile) return;
+        if (!currentAuthor) {
+          showAlert("Inicia sesión para publicar.");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Publicando…";
+        progressWrap.classList.remove("hidden");
+
+        try {
+          await publishVideo({
+            file: selectedFile,
+            description: descriptionInput.value,
+            author: currentAuthor,
+            onProgress: (percent) => {
+              progressFill.style.width = `${percent}%`;
+              progressPercent.textContent = `${percent}%`;
+            },
+          });
+          showToast("Video publicado.", "success");
+          window.location.href = ROUTES.HOME;
+        } catch (err) {
+          showAlert(err.message || "No se pudo publicar el video.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Publicar";
+          progressWrap.classList.add("hidden");
+        }
+      })
+    );
+  </script>
+</body>
+</html>

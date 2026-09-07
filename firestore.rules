@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ---- usernames: reserva de nombres únicos ----
+    // Solo se puede crear el documento propio (id = username),
+    // nunca modificarlo ni eliminarlo desde el cliente.
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---- users: perfiles públicos ----
+    match /users/{uid} {
+      allow read: if true;
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid);
+      allow delete: if false;
+    }
+
+    // ---- videos: contenido público, solo el autor lo modifica ----
+    match /videos/{videoId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorUid == request.auth.uid;
+      // Se permite update para los contadores (likesCount, commentsCount, savesCount)
+      // gestionados por transacciones del propio backend de reglas de Firestore.
+      // En una v2 esto debería moverse a Cloud Functions para mayor control.
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && resource.data.authorUid == request.auth.uid;
+
+      // ---- comentarios de un video ----
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+        allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+        allow update: if false;
+      }
+    }
+
+    // ---- likes: un documento por (usuario, video), id = uid_videoId ----
+    match /likes/{likeId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid
+                    && likeId == request.auth.uid + '_' + request.resource.data.videoId;
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ---- followers / following: preparado para fase posterior ----
+    match /followers/{uid}/list/{followerId} {
+      allow read: if true;
+      allow write: if isSignedIn() && followerId == request.auth.uid;
+    }
+
+    match /following/{uid}/list/{followedId} {
+      allow read: if true;
+      allow write: if isOwner(uid);
+    }
+
+    // ---- notificaciones: solo el destinatario las lee ----
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.recipientUid == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.recipientUid == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.recipientUid == request.auth.uid;
+    }
+
+    // ---- conversaciones y mensajes: solo los participantes ----
+    match /conversations/{conversationId} {
+      allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+        allow create: if isSignedIn() && request.resource.data.senderUid == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---- guardados: privados por usuario ----
+    match /saved/{uid}/items/{videoId} {
+      allow read, write: if isOwner(uid);
+    }
+  }
+}
